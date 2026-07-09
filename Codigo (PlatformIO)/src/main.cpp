@@ -7,18 +7,46 @@
 //=================================
 //CONFIGS
 
+//Configuracion joystick
+#define JOYSTICK_SENSITIVITY 1
+#define JOYSTICK_DEADZONE 2048
+
+//Configuracion autitos
+#define MAX_WHEEL_SPEED 250
+#define FORWARD_SENSITIVITY 0.9
+#define TURN_SENSITIVITY 0.4
+
 //Program selector (0 = Bot | 1 = Controller)
-#define PROGRAM_SELECT CONTROLLER_PROGRAM
+#define PROGRAM_SELECT BOT_PROGRAM
 
 #define CHAR_UUID "c0de0002-feed-babe-cafe-00000000000b"
 
-//Cambiar aqui por cada bot y control (A-B-C-D)
-#define BOT_NAME "BOT_B"
-#define SERVICE_UUID "C0DE000B-1234-5678-ABCD-000000000000"
+//-----------------------------------------
+//Cambiar aqui por cada bot y control (O-R-G-B) -> (A-B-C-D)
 
-#define MAX_WHEEL_SPEED 250
-#define SENSITIVITY 0.7
-#define JOYSTICK_DEADZONE 2048
+//Naranjo
+#define BOT_NAME "FutbolCRIto Naranjo"
+#define SERVICE_UUID "C0DE000A-1234-5678-ABCD-000000000000"
+#define LEFT_WHEEL_COMPENSATION 1
+#define RIGHT_WHEEL_COMPENSATION 0.9
+
+//Rojo
+// #define BOT_NAME "FutbolCRIto Rojo"
+// #define SERVICE_UUID "C0DE000B-1234-5678-ABCD-000000000000"
+// #define LEFT_WHEEL_COMPENSATION 0.96
+// #define RIGHT_WHEEL_COMPENSATION 1
+
+// //Verde
+// #define BOT_NAME "FutbolCRIto Verde"
+// #define SERVICE_UUID "C0DE000C-1234-5678-ABCD-000000000000"
+// #define LEFT_WHEEL_COMPENSATION 1
+// #define RIGHT_WHEEL_COMPENSATION 0.95
+
+// //Azul
+// #define BOT_NAME "FutbolCRIto Azul"
+// #define SERVICE_UUID "C0DE000D-1234-5678-ABCD-000000000000"
+// #define LEFT_WHEEL_COMPENSATION 0.95
+// #define RIGHT_WHEEL_COMPENSATION 1
 
 //=================================
 //Globals
@@ -126,11 +154,29 @@ class MyCallbacks: public BLECharacteristicCallbacks{
 				int y_power = myData->y_power;
 				bool btn_pressed = myData->btn_pressed;
 
-				int forwardSpeed = map(y_power, -100, 100, -MAX_WHEEL_SPEED, MAX_WHEEL_SPEED);
-				int steeringSpeed = map(x_power, -100, 100, -MAX_WHEEL_SPEED, MAX_WHEEL_SPEED);
+				int forwardSpeed = map(y_power, -100, 100, -MAX_WHEEL_SPEED, MAX_WHEEL_SPEED)*FORWARD_SENSITIVITY;
+				int steeringSpeed = map(x_power, -100, 100, -MAX_WHEEL_SPEED, MAX_WHEEL_SPEED)*TURN_SENSITIVITY;
 
-				int leftMotor = forwardSpeed + steeringSpeed;
-				int rightMotor = forwardSpeed - steeringSpeed;
+				int leftMotor, rightMotor;
+				
+				if(abs(y_power) < 50){
+					leftMotor = -steeringSpeed;
+					rightMotor = steeringSpeed;
+				}
+				else if(y_power > 0){
+					leftMotor = forwardSpeed + steeringSpeed;
+					rightMotor = forwardSpeed - steeringSpeed;
+				}
+				else{
+					leftMotor = forwardSpeed - steeringSpeed;
+					rightMotor = forwardSpeed + steeringSpeed;	
+				}
+				
+				//Constrain vels
+				leftMotor = constrain(leftMotor, -MAX_WHEEL_SPEED, MAX_WHEEL_SPEED);
+				rightMotor = constrain(rightMotor, -MAX_WHEEL_SPEED, MAX_WHEEL_SPEED);
+				rightMotor*= RIGHT_WHEEL_COMPENSATION;
+				leftMotor *= LEFT_WHEEL_COMPENSATION;
 
 				motors.controlMotors(leftMotor, rightMotor);
 				Serial.printf("Joystick -> X:%hd Y:%hd | Motores -> L:%d R:%d\n", x_power, y_power, leftMotor, rightMotor);
@@ -173,7 +219,7 @@ void setup(){
 
   #elif PROGRAM_SELECT == CONTROLLER_PROGRAM
     Serial.println("Iniciando mando de FutbolCRIto: " + String(BOT_NAME));
-	joystick.init(VRX_PIN, VRY_PIN, SW_PIN, SENSITIVITY, JOYSTICK_DEADZONE);
+	joystick.init(VRX_PIN, VRY_PIN, SW_PIN, JOYSTICK_SENSITIVITY, JOYSTICK_DEADZONE);
 		
 	BLEDevice::init(String("Mando: " + String(BOT_NAME)).c_str());
 	

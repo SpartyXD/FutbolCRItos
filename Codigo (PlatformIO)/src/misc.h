@@ -6,14 +6,14 @@
 //Bot
 
 //Left motor
-#define PWM_A_PIN 0
-#define A1_PIN 1  
-#define A2_PIN 2 
+#define PWM_A_PIN 3 
+#define A1_PIN 4  
+#define A2_PIN 5  
 
 //Right motor
-#define PWM_B_PIN 3
-#define B1_PIN 4
-#define B2_PIN 5 
+#define PWM_B_PIN 0
+#define B1_PIN 1
+#define B2_PIN 2 
 
 //Controller
 #define VRX_PIN 0

@@ -6,7 +6,7 @@ struct Joystick{
     //Pins
     int vrx_pin, vry_pin;
     int sw_pin, sw_state;
-    float sensitivity = 0.7;
+    float sensitivity = 1.0;
 
     //Joysticks
     int deadzone = 2048;
@@ -25,7 +25,7 @@ struct Joystick{
         if(abs(relative_pos) < joystick_threshold)
             return 0;
 
-        int power = map(abs(relative_pos), joystick_threshold, (max_reading-joystick_threshold-deadzone), 0, 100);
+        int power = map(abs(relative_pos), joystick_threshold, (max_reading-deadzone), 0, 100);
         power *= sensitivity;
 
         return (relative_pos<0) ? -power : power;
@@ -33,7 +33,7 @@ struct Joystick{
 
     Joystick(){}
 
-    void init(int vrx_pin, int vry_pin, int sw_pin, float sensitivity=0.7, int deadzone=2048){
+    void init(int vrx_pin, int vry_pin, int sw_pin, float sensitivity=1, int deadzone=2048){
         pinMode(vrx_pin, INPUT);
         pinMode(vry_pin, INPUT);
         pinMode(sw_pin, INPUT_PULLUP);
