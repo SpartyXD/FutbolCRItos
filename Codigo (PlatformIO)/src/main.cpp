@@ -12,9 +12,9 @@
 #define JOYSTICK_DEADZONE 2048
 
 //Configuracion autitos
-#define MAX_WHEEL_SPEED 250
+#define MAX_WHEEL_SPEED 200
 #define FORWARD_SENSITIVITY 0.9
-#define TURN_SENSITIVITY 0.4
+#define TURN_SENSITIVITY 0.5
 
 //Program selector (0 = Bot | 1 = Controller)
 #define PROGRAM_SELECT BOT_PROGRAM
